@@ -1,10 +1,17 @@
-class MainScreen extends StatelessWidget {
-  final Map<String, dynamic>? budgetData;
-
-  const MainScreen({
-    super.key,
-    this.budgetData,
-  });
-
-  // ... rest of the implementation
-} 
+// class MainScreen extends StatelessWidget {
+//   const MainScreen({super.key});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: Colors.white,
+//       body: SafeArea(
+//         child: Column(
+//           children: [
+//             // Your main screen content
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }

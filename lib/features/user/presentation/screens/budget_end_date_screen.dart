@@ -3,14 +3,12 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BudgetEndDateScreen extends StatelessWidget {
-  final String selectedPeriod;
   final String selectedCategory;
   final double budget;
   final DateTime startDate;
 
   const BudgetEndDateScreen({
     super.key,
-    required this.selectedPeriod,
     required this.selectedCategory,
     required this.budget,
     required this.startDate,
@@ -20,8 +18,7 @@ class BudgetEndDateScreen extends StatelessWidget {
   Future<void> _saveBudgetData(DateTime endDate) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
-      await prefs.setString('budget_period', selectedPeriod);
+
       await prefs.setString('budget_category', selectedCategory);
       await prefs.setDouble('budget_amount', budget);
       await prefs.setString('budget_start_date', startDate.toIso8601String());

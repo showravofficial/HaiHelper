@@ -2,25 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-final selectedCategoryProvider = StateProvider<String?>((ref) => null);
+final selectedCategoriesProvider = StateProvider<Map<String, double>>((ref) => {});
 final budgetAmountProvider = StateProvider<String>((ref) => '');
+final dialogButtonSelectionProvider = StateProvider<String>((ref) => 'submit'); // Default selected button
 
 class BudgetCategoryScreen extends ConsumerWidget {
   const BudgetCategoryScreen({super.key});
 
-  final List<String> categories = const [
-    'Behaviour support',
-    'Choice and control',
-    'Finding and keeping a job',
-    'Health and wellbeing',
-    'Improved daily living skills',
-    'Improved living arrangements',
-    'Increased social and community participation',
-    'Lifelong learning',
-    'Relationships',
-    'Support coordination and psychosocial recovery coaches',
-  ];
+  final Map<String, List<String>> budgetSections = const {
+    'Core Supports Budget': [
+      'Consumables',
+      'Daily Activities',
+      'Assistance with Social and Community Participation',
+      'Transport',
+    ],
+    'Capacity Building Budget': [
+      'Choice and Control',
+      'Daily Activity',
+      'Employment',
+      'Health and Wellbeing',
+      'Home Living',
+      'Lifelong Learning',
+      'Relationships',
+      'Social and Community Participation',
+    ],
+    'Capital Supports Budget': [
+      'Assistive Technology',
+      'Home Modifications',
+      'Vehicle Modifications',
+      'Specialist Disability Accommodation',
+    ],
+  };
+
+  Future<void> _saveBudgetData(String category, double amount) async {
+    final prefs = await SharedPreferences.getInstance();
+    final selectedCategories = prefs.getStringList('selected_categories') ?? [];
+    selectedCategories.add(category);
+    await prefs.setStringList('selected_categories', selectedCategories);
+
+    // Save individual category amount
+    await prefs.setDouble('budget_amount_$category', amount);
+    await prefs.setBool('is_budget_set', true);
+  }
 
   void _showBudgetDialog(BuildContext context, WidgetRef ref, String category) {
     showDialog(
@@ -47,9 +72,9 @@ class BudgetCategoryScreen extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Budget',
-                  style: TextStyle(
+                Text(
+                  category,
+                  style: const TextStyle(
                     color: Color(0xFF7B6EF6),
                     fontSize: 24,
                     fontWeight: FontWeight.w600,
@@ -70,18 +95,19 @@ class BudgetCategoryScreen extends ConsumerWidget {
                     ],
                   ),
                   child: TextFormField(
-                    keyboardType: TextInputType.number,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
                     ],
                     onChanged: (value) {
                       ref.read(budgetAmountProvider.notifier).state = value;
                     },
-                    decoration: const InputDecoration(
-                      hintText: 'Type',
-                      hintStyle: TextStyle(color: Colors.grey),
+                    decoration: InputDecoration(
+                      hintText: 'Enter amount',
+                      prefixText: '💲 ',
+                      hintStyle: TextStyle(color: Colors.grey[400]),
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
+                      contentPadding: const EdgeInsets.symmetric(
                         horizontal: 20,
                         vertical: 16,
                       ),
@@ -89,50 +115,147 @@ class BudgetCategoryScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                Container(
-                  width: double.infinity,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    color: const Color(0xFF7B6EF6),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF7B6EF6).withOpacity(0.3),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: Consumer(
-                    builder: (context, ref, _) {
-                      final budgetAmount = ref.watch(budgetAmountProvider);
-                      return Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(30),
-                          onTap: budgetAmount.isNotEmpty ? () {
-                            Navigator.pop(context);
-                            // Navigate to budget start date screen with category and budget data
-                            context.push('/budget-start-date', extra: {
-                              'category': category,
-                              'budget': double.parse(budgetAmount),
-                              'period': 'Monthly', // You might want to pass this from previous screen
-                            });
-                          } : null,
-                          child: const Center(
-                            child: Text(
-                              'Submit',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                Row(
+                  children: [
+                    // Cancel Button
+                    Expanded(
+                      child: Consumer(
+                        builder: (context, ref, _) {
+                          final selectedButton = ref.watch(dialogButtonSelectionProvider);
+                          return Container(
+                            height: 56,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              color: selectedButton == 'cancel'
+                                  ? const Color(0xFF7B6EF6)
+                                  : Colors.grey[100],
+                            ),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(30),
+                                onTap: () {
+                                  ref.read(dialogButtonSelectionProvider.notifier).state = 'cancel';
+                                  Navigator.pop(context);
+                                },
+                                child: Center(
+                                  child: Text(
+                                    'Cancel',
+                                    style: TextStyle(
+                                      color: selectedButton == 'cancel'
+                                          ? Colors.white
+                                          : const Color(0xFF7B6EF6),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    // Submit Button
+                    Expanded(
+                      child: Consumer(
+                        builder: (context, ref, _) {
+                          final selectedButton = ref.watch(dialogButtonSelectionProvider);
+                          final budgetAmount = ref.watch(budgetAmountProvider);
+                          return Container(
+                            height: 56,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              color: selectedButton == 'submit'
+                                  ? const Color(0xFF7B6EF6)
+                                  : Colors.grey[100],
+                              boxShadow: selectedButton == 'submit' ? [
+                                BoxShadow(
+                                  color: const Color(0xFF7B6EF6).withOpacity(0.3),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 5),
+                                ),
+                              ] : null,
+                            ),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(30),
+                                onTap: budgetAmount.isNotEmpty ? () async {
+                                  ref.read(dialogButtonSelectionProvider.notifier).state = 'submit';
+                                  try {
+                                    final amount = double.tryParse(budgetAmount);
+                                    if (amount == null) {
+                                      throw Exception('Invalid amount');
+                                    }
+
+                                    // Show loading indicator
+                                    if (context.mounted) {
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (BuildContext context) {
+                                          return const Center(
+                                            child: CircularProgressIndicator(
+                                              color: Color(0xFF7B6EF6),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    }
+
+                                    // Save budget data locally
+                                    await _saveBudgetData(category, amount);
+
+                                    // Update selected categories in state
+                                    final currentSelections = Map<String, double>.from(ref.read(selectedCategoriesProvider));
+                                    currentSelections[category] = amount;
+                                    ref.read(selectedCategoriesProvider.notifier).state = currentSelections;
+
+                                    // Close dialog and show confirmation
+                                    if (context.mounted) {
+                                      Navigator.pop(context); // Remove loading indicator
+                                      Navigator.pop(context); // Close budget dialog
+
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Added $category: \$${amount.toStringAsFixed(2)}'),
+                                          backgroundColor: const Color(0xFF7B6EF6),
+                                        ),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      Navigator.pop(context); // Remove loading indicator if showing
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Failed to update budget'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  }
+                                } : null,
+                                child: Center(
+                                  child: Text(
+                                    'Submit',
+                                    style: TextStyle(
+                                      color: selectedButton == 'submit'
+                                          ? Colors.white
+                                          : const Color(0xFF7B6EF6),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -142,9 +265,90 @@ class BudgetCategoryScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: Text(
+        title,
+        style: const TextStyle(
+          color: Color(0xFF2D3142),
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryItem(WidgetRef ref, String category, Function() onTap) {
+    final selectedCategories = ref.watch(selectedCategoriesProvider);
+    final isSelected = selectedCategories.containsKey(category);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Container(
+        width: double.infinity,
+        height: 56,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+          color: isSelected ? const Color(0xFF7B6EF6) : Colors.white,
+          boxShadow: [
+            if (!isSelected)
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(30),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Row(
+                children: [
+                  const Text('💲', style: TextStyle(fontSize: 20)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      category,
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : const Color(0xFF7B6EF6),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  if (isSelected)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '\$${selectedCategories[category]?.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedCategory = ref.watch(selectedCategoryProvider);
+    final selectedCategories = ref.watch(selectedCategoriesProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -160,7 +364,7 @@ class BudgetCategoryScreen extends ConsumerWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: const LinearProgressIndicator(
-                      value: 0.4, // 40% progress
+                      value: 0.6, // 60% progress - adjust this value based on your flow
                       minHeight: 8,
                       backgroundColor: Color(0xFFE8E8E8),
                       valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF7B6EF6)),
@@ -169,82 +373,106 @@ class BudgetCategoryScreen extends ConsumerWidget {
                 ],
               ),
             ),
-
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 24),
-                    // Title
-                    const Text(
-                      'Budget Category',
-                      style: TextStyle(
-                        color: Color(0xFF7B6EF6),
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                      ),
+            // Header
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Column(
+                children: [
+                  const Text(
+                    'Budget Categories',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Color(0xFF7B6EF6),
+                      fontWeight: FontWeight.w600,
                     ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Categories List
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: categories.map((category) {
-                            final isSelected = selectedCategory == category;
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 12.0),
-                              child: Container(
-                                width: double.infinity,
-                                height: 56,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(30),
-                                  color: isSelected 
-                                      ? const Color(0xFF7B6EF6)
-                                      : Colors.white,
-                                  boxShadow: [
-                                    if (!isSelected)
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.1),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 5),
-                                      ),
-                                  ],
-                                ),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(30),
-                                    onTap: () {
-                                      ref.read(selectedCategoryProvider.notifier).state = category;
-                                      ref.read(budgetAmountProvider.notifier).state = '';
-                                      _showBudgetDialog(context, ref, category);
-                                    },
-                                    child: Center(
-                                      child: Text(
-                                        category,
-                                        style: TextStyle(
-                                          color: isSelected 
-                                              ? Colors.white 
-                                              : const Color(0xFF7B6EF6),
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
+                  ),
+                  if (selectedCategories.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        '${selectedCategories.length} categories selected',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[600],
                         ),
                       ),
                     ),
-                  ],
+                ],
+              ),
+            ),
+            // Categories List
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: budgetSections.entries.map((section) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionTitle(section.key),
+                        ...section.value.map((category) {
+                          return _buildCategoryItem(
+                            ref,
+                            category,
+                                () {
+                              ref.read(budgetAmountProvider.notifier).state = '';
+                              _showBudgetDialog(context, ref, category);
+                            },
+                          );
+                        }).toList(),
+                        const SizedBox(height: 16),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+            // Next Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Container(
+                width: double.infinity,
+                height: 56,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: selectedCategories.isNotEmpty
+                      ? const Color(0xFF7B6EF6)
+                      : Colors.grey[300],
+                  boxShadow: selectedCategories.isNotEmpty ? [
+                    BoxShadow(
+                      color: const Color(0xFF7B6EF6).withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ] : null,
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(30),
+                    onTap: selectedCategories.isNotEmpty ? () {
+                      // Find first selected category and amount for the route
+                      final firstCategory = selectedCategories.entries.first;
+
+                      // Navigate to the budget start date screen with the first category and amount
+                      context.go('/budget-start-date', extra: {
+                        'category': firstCategory.key,
+                        'budget': firstCategory.value,
+                        'allCategories': selectedCategories,
+                      });
+                    } : null,
+                    child: Center(
+                      child: Text(
+                        'Next',
+                        style: TextStyle(
+                          color: selectedCategories.isNotEmpty ? Colors.white : Colors.grey[500],
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -253,4 +481,4 @@ class BudgetCategoryScreen extends ConsumerWidget {
       ),
     );
   }
-} 
+}

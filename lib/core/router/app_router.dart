@@ -9,7 +9,9 @@ import 'package:haihelper/features/auth/presentation/screens/forget_password_scr
 import 'package:haihelper/features/auth/presentation/screens/email_verification_screen.dart';
 import 'package:haihelper/features/auth/presentation/screens/reset_password_screen.dart';
 import 'package:haihelper/features/auth/presentation/screens/password_success_screen.dart';
-import 'package:haihelper/features/user/presentation/screens/total_budget_screen.dart';
+import 'package:haihelper/features/user/presentation/screens/budget_category_screen.dart';
+import 'package:haihelper/features/user/presentation/screens/budget_information_screen.dart';
+import 'package:haihelper/features/settings/presentation/screens/budget.dart';
 import 'package:haihelper/features/chat/presentation/screens/chat_screen.dart';
 import 'package:haihelper/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:haihelper/features/settings/presentation/screens/settings_screen.dart';
@@ -19,18 +21,13 @@ import 'package:haihelper/features/settings/presentation/screens/terms_condition
 import 'package:haihelper/features/settings/presentation/screens/help_support_screen.dart';
 import 'package:haihelper/features/settings/presentation/screens/about_us_screen.dart';
 import 'package:haihelper/features/settings/presentation/screens/subscription_screen.dart';
-import 'package:haihelper/features/user/presentation/screens/budget_period_screen.dart';
-import 'package:haihelper/features/user/presentation/screens/budget_category_screen.dart';
-import 'package:haihelper/features/user/presentation/screens/budget_start_date_screen.dart';
-import 'package:haihelper/features/user/presentation/screens/budget_end_date_screen.dart';
-import 'package:haihelper/features/user/presentation/screens/total_allocated_funds_screen.dart';
-import 'package:haihelper/features/user/presentation/screens/total_used_funds_screen.dart';
 import 'package:haihelper/features/history/presentation/screens/history_screen.dart';
 import 'package:haihelper/core/screens/main_screen.dart';
-import 'package:haihelper/features/user/presentation/screens/budget_information_screen.dart';
-import 'package:haihelper/features/settings/presentation/screens/budget.dart';
 
-import '../widgets/custom_bottom_nav_bar.dart';
+import '../../features/settings/presentation/screens/selected_budget_screen.dart';
+import '../../features/user/presentation/screens/budget_end_date_screen.dart';
+import '../../features/user/presentation/screens/budget_start_date_screen.dart';
+
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -108,16 +105,12 @@ final appRouter = GoRouter(
       builder: (context, state) => const HelpSupportScreen(),
     ),
     GoRoute(
+      path: '/selected-budget-screen',
+      builder: (context, state) => const SelectedBudgetScreen(),
+    ),
+    GoRoute(
       path: '/about-us',
       builder: (context, state) => const AboutUsScreen(),
-    ),
-    GoRoute(
-      path: '/total-budget',
-      builder: (context, state) => const TotalBudgetScreen(),
-    ),
-    GoRoute(
-      path: '/budget-period',
-      builder: (context, state) => const BudgetPeriodScreen(),
     ),
     GoRoute(
       path: '/budget-category',
@@ -128,7 +121,6 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final params = state.extra as Map<String, dynamic>;
         return BudgetStartDateScreen(
-          selectedPeriod: params['period'] as String,
           selectedCategory: params['category'] as String,
           budget: params['budget'] as double,
         );
@@ -139,35 +131,9 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final params = state.extra as Map<String, dynamic>;
         return BudgetEndDateScreen(
-          selectedPeriod: params['period'] as String,
           selectedCategory: params['category'] as String,
           budget: params['budget'] as double,
           startDate: params['startDate'] as DateTime,
-        );
-      },
-    ),
-    GoRoute(
-      path: '/total-allocated-funds',
-      builder: (context, state) {
-        final Map<String, dynamic> extra = state.extra as Map<String, dynamic>;
-        return TotalAllocatedFundsScreen(
-          selectedPeriod: extra['period'] as String,
-          selectedCategory: extra['category'] as String,
-          startDate: extra['startDate'] as DateTime,
-          endDate: extra['endDate'] as DateTime,
-        );
-      },
-    ),
-    GoRoute(
-      path: '/total-used-funds',
-      builder: (context, state) {
-        final Map<String, dynamic> extra = state.extra as Map<String, dynamic>;
-        return TotalUsedFundsScreen(
-          selectedPeriod: extra['period'] as String,
-          selectedCategory: extra['category'] as String,
-          startDate: extra['startDate'] as DateTime,
-          endDate: extra['endDate'] as DateTime,
-          totalAllocatedFunds: extra['totalAllocatedFunds'] as double,
         );
       },
     ),
@@ -180,7 +146,7 @@ final appRouter = GoRouter(
       builder: (context, state) => const BudgetInformationScreen(),
     ),
     GoRoute(
-      path: '/budget',
+      path: '/settings/budget',
       builder: (context, state) => const BudgetScreen(),
     ),
   ],

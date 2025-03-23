@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class BudgetStartDateScreen extends StatelessWidget {
-  final String selectedPeriod;
   final String selectedCategory;
   final double budget;
 
   const BudgetStartDateScreen({
     super.key,
-    required this.selectedPeriod,
     required this.selectedCategory,
     required this.budget,
   });
@@ -147,7 +145,6 @@ class BudgetStartDateScreen extends StatelessWidget {
                                   ? () {
                                       // Navigate to budget end date screen with all data
                                       context.push('/budget-end-date', extra: {
-                                        'period': selectedPeriod,
                                         'category': selectedCategory,
                                         'budget': budget,
                                         'startDate': value,

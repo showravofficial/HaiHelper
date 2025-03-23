@@ -177,7 +177,7 @@ class EditProfileScreen extends ConsumerWidget {
                     _buildTextField(
                       ref,
                       'Email',
-                      Icons.email_outline,
+                      Icons.email_outlined,
                       emailProvider,
                     ),
                     const SizedBox(height: 16),

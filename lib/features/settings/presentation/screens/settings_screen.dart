@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/widgets/custom_bottom_nav_bar.dart';
+
 
 final isDarkModeProvider = StateProvider<bool>((ref) => false);
 
@@ -53,8 +53,13 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   _SettingItem(
                     icon: Icons.account_balance_wallet_outlined,
-                    title: 'Budget',
-                    onTap: () => context.push('/budget'),
+                    title: 'Budget Update',
+                    onTap: () => context.push('/settings/budget'),
+                  ),
+                  _SettingItem(
+                    icon: Icons.account_balance_wallet_outlined,
+                    title: 'Selected Budget',
+                    onTap: () => context.push('/selected-budget-screen'),
                   ),
                   _SettingItem(
                     icon: Icons.flash_on,

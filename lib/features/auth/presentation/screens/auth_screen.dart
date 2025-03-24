@@ -55,18 +55,25 @@ class AuthScreen extends ConsumerWidget {
                   const SizedBox(height: 32),
                   Container(
                     decoration: BoxDecoration(
-                      boxShadow: const [
+                      // boxShadow: const [
+                      //   BoxShadow(
+                      //     color: Color.fromRGBO(50, 50, 93, 0.25),
+                      //     blurRadius: 100,
+                      //     spreadRadius: -20,
+                      //     offset: Offset(0, 50),
+                      //   ),
+                      //   BoxShadow(
+                      //     color: Color.fromRGBO(0, 0, 0, 0.3),
+                      //     blurRadius: 60,
+                      //     spreadRadius: -30,
+                      //     offset: Offset(0, 30),
+                      //   ),
+                      // ],
+                      boxShadow: [
                         BoxShadow(
-                          color: Color.fromRGBO(50, 50, 93, 0.25),
-                          blurRadius: 100,
-                          spreadRadius: -20,
-                          offset: Offset(0, 50),
-                        ),
-                        BoxShadow(
-                          color: Color.fromRGBO(0, 0, 0, 0.3),
-                          blurRadius: 60,
-                          spreadRadius: -30,
-                          offset: Offset(0, 30),
+                          color: const Color(0xFF7B6EF6).withOpacity(0.2),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
@@ -104,18 +111,25 @@ class AuthScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   Container(
                     decoration: BoxDecoration(
-                      boxShadow: const [
+                      // boxShadow: const [
+                      //   BoxShadow(
+                      //     color: Color.fromRGBO(50, 50, 93, 0.25),
+                      //     blurRadius: 100,
+                      //     spreadRadius: -20,
+                      //     offset: Offset(0, 50),
+                      //   ),
+                      //   BoxShadow(
+                      //     color: Color.fromRGBO(0, 0, 0, 0.3),
+                      //     blurRadius: 60,
+                      //     spreadRadius: -30,
+                      //     offset: Offset(0, 30),
+                      //   ),
+                      // ],
+                      boxShadow: [
                         BoxShadow(
-                          color: Color.fromRGBO(50, 50, 93, 0.25),
-                          blurRadius: 100,
-                          spreadRadius: -20,
-                          offset: Offset(0, 50),
-                        ),
-                        BoxShadow(
-                          color: Color.fromRGBO(0, 0, 0, 0.3),
-                          blurRadius: 60,
-                          spreadRadius: -30,
-                          offset: Offset(0, 30),
+                          color: const Color(0xFF7B6EF6).withOpacity(0.2),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),

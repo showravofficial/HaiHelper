@@ -106,10 +106,17 @@ class BudgetInformationScreen extends ConsumerWidget {
                         color: selectedOption == 'no' 
                             ? const Color(0xFF7B6EF6)
                             : Colors.white,
-                        border: Border.all(
-                          color: const Color(0xFF7B6EF6),
-                          width: 1,
-                        ),
+                        // border: Border.all(
+                        //   color: const Color(0xFF7B6EF6),
+                        //   width: 1,
+                        // ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF7B6EF6).withOpacity(0.2),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
                       ),
                       child: Material(
                         color: Colors.transparent,

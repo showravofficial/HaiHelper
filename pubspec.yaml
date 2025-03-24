@@ -42,4 +42,6 @@ dependencies:
   country_picker: ^2.0.27
   slide_to_act: ^2.0.1
   shared_preferences: ^2.5.2
+  fl_chart: ^0.70.2
+  flutter_screenutil: ^5.9.3
 

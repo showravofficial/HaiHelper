@@ -23,20 +23,13 @@ class SettingsScreen extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Setting',
+                    'Settings',
                     style: TextStyle(
                       fontSize: 24,
                       color: Color(0xFF7B6EF6),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  // Switch(
-                  //   value: isDarkMode,
-                  //   onChanged: (value) {
-                  //     ref.read(isDarkModeProvider.notifier).state = value;
-                  //   },
-                  //   activeColor: const Color(0xFF7B6EF6),
-                  // ),
                 ],
               ),
             ),
@@ -46,20 +39,60 @@ class SettingsScreen extends ConsumerWidget {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Text(
+                      'Profile',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                  _SettingItem(
+                    icon: Icons.person_outline,
+                    title: 'Edit Profile',
+                    onTap: () => context.push('/edit-profile'),
+                  ),
+                  _SettingItem(
+                    icon: Icons.account_balance_wallet_outlined,
+                    title: 'Budget Settings',
+                    onTap: () => context.push('/settings/budget'),
+                  ),
+                  
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Text(
+                      'Activity',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
                   _SettingItem(
                     icon: Icons.history,
                     title: 'History',
                     onTap: () => context.push('/history'),
                   ),
                   _SettingItem(
-                    icon: Icons.account_balance_wallet_outlined,
-                    title: 'Budget Update',
-                    onTap: () => context.push('/settings/budget'),
-                  ),
-                  _SettingItem(
-                    icon: Icons.account_balance_wallet_outlined,
-                    title: 'Selected Budget',
+                    icon: Icons.pie_chart_outline,
+                    title: 'Budget Overview',
                     onTap: () => context.push('/selected-budget-screen'),
+                  ),
+                  
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Text(
+                      'App Settings',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                      ),
+                    ),
                   ),
                   _SettingItem(
                     icon: Icons.flash_on,
@@ -73,7 +106,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   _SettingItem(
                     icon: Icons.description_outlined,
-                    title: 'Terms & Condition',
+                    title: 'Terms & Conditions',
                     onTap: () => context.push('/terms-conditions'),
                   ),
                   _SettingItem(
@@ -86,6 +119,8 @@ class SettingsScreen extends ConsumerWidget {
                     title: 'About Us',
                     onTap: () => context.push('/about-us'),
                   ),
+                  
+                  const SizedBox(height: 16),
                   _SettingItem(
                     icon: Icons.logout,
                     title: 'Log out',

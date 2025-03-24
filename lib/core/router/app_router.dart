@@ -22,6 +22,7 @@ import 'package:haihelper/features/settings/presentation/screens/help_support_sc
 import 'package:haihelper/features/settings/presentation/screens/about_us_screen.dart';
 import 'package:haihelper/features/settings/presentation/screens/subscription_screen.dart';
 import 'package:haihelper/features/history/presentation/screens/history_screen.dart';
+import 'package:haihelper/features/budget/presentation/screens/budget_overview_screen.dart';
 import 'package:haihelper/core/screens/main_screen.dart';
 
 import '../../features/settings/presentation/screens/selected_budget_screen.dart';
@@ -106,7 +107,7 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/selected-budget-screen',
-      builder: (context, state) => const SelectedBudgetScreen(),
+      builder: (context, state) => const BudgetOverviewScreen(),
     ),
     GoRoute(
       path: '/about-us',
